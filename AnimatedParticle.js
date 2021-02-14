@@ -78,7 +78,7 @@ export default class AnimatedParticle extends React.Component<
 
     return (
       <Animated.View style={[styles.particle, animatedStyle, style]}>
-        <TouchableWithoutFeedback onPress={this.animation.stop()}>
+        <TouchableWithoutFeedback onPress={this.animation && this.animation.stop()}>
           {children}
         </TouchableWithoutFeedback>
       </Animated.View>
