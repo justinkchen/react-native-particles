@@ -1,7 +1,7 @@
 //@flow
 import React from 'react';
 
-import { StyleSheet, Animated, Easing } from 'react-native';
+import { StyleSheet, Animated, Easing, TouchableWithoutFeedback } from 'react-native';
 import type { InterpolationConfigType } from 'react-native/Libraries/Animated/src/nodes/AnimatedInterpolation';
 
 import type { Element } from 'react';
