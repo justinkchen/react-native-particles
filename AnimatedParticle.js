@@ -1,7 +1,7 @@
 //@flow
 import React from 'react';
 
-import { Platform, View, StyleSheet, Animated, Easing, PanResponder, GestureResponderEvent, PanResponderGestureState } from 'react-native';
+import { StyleSheet, Animated, Easing } from 'react-native';
 import type { InterpolationConfigType } from 'react-native/Libraries/Animated/src/nodes/AnimatedInterpolation';
 
 import type { Element } from 'react';
@@ -31,12 +31,6 @@ interface IAnimatedParticleState {
   opacityValue: Animated.Value;
   translateX: InterpolationConfigType;
   translateY: InterpolationConfigType;
-  cumulativeX: Number;
-  cumulativeY: Number;
-  gestureOffsetX: Number;
-  gestureOffsetY: Number;
-  clicked: Boolean;
-  pan: Animated.ValueXY;
 }
 
 type InterpolationConfig = {
@@ -49,115 +43,15 @@ export default class AnimatedParticle extends React.Component<
   IAnimatedParticleState
 > {
   static defaultProps = {};
-  panResponder = undefined;
 
   constructor(props: IAnimatedParticle) {
     super(props);
 
-    const animatedValue = new Animated.Value(0);
-    // animatedValue.addListener(({value}) => { 
-    //   let interpolatedX = value.interpolate(this._createInterpolations(props.path).translateX).__getValue();
-    //   let interpolatedY = value.interpolate(this._createInterpolations(props.path).translateY).__getValue();
-    //   console.log("X", interpolatedX);
-    //   console.log("Y", interpolatedY);
-    //   this._xValue = interpolatedX;
-    //   this._yValue = interpolatedY;
-    // });
-    
     this.state = {
-      animatedValue,
+      animatedValue: new Animated.Value(0),
       opacityValue: new Animated.Value(1),
-      clicked: true,
-      cumulativeX: 0,
-      cumulativeY: 0,
-      gestureOffsetX: 0,
-      gestureOffsetY: 0,
-      pan: undefined,
       ...this._createInterpolations(props.path)
     };
-
-    this.panResponder = PanResponder.create({
-      onMoveShouldSetPanResponder: () => true,
-      onPanResponderGrant: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        this.setState({ clicked: true })
-        // console.log(JSON.stringify(gestureState));
-        // console.log(evt.nativeEvent.locationX, evt.nativeEvent.locationY);
-        // const pan = this.state.pan || new Animated.ValueXY({
-        //   x: 0,
-        //   y: 0
-        // });;
-        
-        // pan.setOffset({ x: pan.x._value, y: pan.y._value });
-        // // // pan.setValue({ x: 0, y: 0 });
-        
-        // this.setState({ pan })
-      },
-      onPanResponderMove: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        evt.persist();
-        requestAnimationFrame(() => {
-          const event = evt.nativeEvent;
-          // const isFirstTime = !this.state.clicked;
-
-          // if (isFirstTime) {
-          //   const pan = new Animated.ValueXY({
-          //     x: animatedValue._value,
-          //     y: animatedValue._value
-          //   });
-          //   // pan.setOffset({ x: pan.x._value, y: pan.y._value });
-          //   // pan.setValue({ x: 0, y: 0 });
-
-          //   this.setState({ pan, clicked: true });
-          //   console.log("dxdy", gestureState.dx, gestureState.dy)
-          //   console.log("location", evt.nativeEvent.locationX, evt.nativeEvent.locationY)
-          //   console.log("pan", pan.x._value, pan.y._value)
-          // }
-          // if (!isFirstTime && this.state.initialX === 0) {
-          //   this.setState({ 
-          //     initialX: this.state.pan.x._value + evt.nativeEvent.locationX, 
-          //     initialY: this.state.pan.y._value + evt.nativeEvent.locationY, 
-          //     clicked: true 
-          //   })
-          // }
-
-          // const pan = new Animated.ValueXY({
-          //   x: (Platform.OS === 'android' ? gestureState.x0 + gestureState.dx : this.state.pan.x._value + event.locationX),
-          //   y: (Platform.OS === 'android' ? gestureState.y0 + gestureState.dy : this.state.pan.y._value + event.locationY)
-          // });
-          // const pan = new Animated.ValueXY({
-          //   x: (Platform.OS === 'android' ? gestureState.x0 + gestureState.dx : gestureState.dx),
-          //   y: (Platform.OS === 'android' ? gestureState.y0 + gestureState.dy : gestureState.dy)
-          // });
-
-          // const pan = this.state.pan;
-          // pan.setValue({ 
-          //   x: this.state.gestureOffsetX + gestureState.dx, 
-          //   y: this.state.gestureOffsetY + gestureState.dy 
-          // });
-          // // pan.setOffset({ x: pan.x._value, y: pan.y._value });
-          // // pan.setValue({ x: 0, y: 0 });
-          
-          // console.log("dxdy2", gestureState.dx, gestureState.dy)
-          // console.log("location2", evt.nativeEvent.locationX, evt.nativeEvent.locationY)
-
-          // this.setState({ 
-          //   pan,
-          // });
-
-          // console.log("pan", pan.x._value, pan.y._value)
-        })
-      },
-      onPanResponderRelease: (evt: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        // const event = evt.nativeEvent;
-        // this.setState(
-        //   { 
-        //     gestureOffsetX: this.state.gestureOffsetX + gestureState.dx,
-        //     gestureOffsetY: this.state.gestureOffsetY + gestureState.dy,
-        //   }
-        // );
-        // this.state.pan.flattenOffset();
-        // this.setState({ initialX: 0, initialY: 0 })
-      }
-    });
   }
 
   render() {
@@ -167,22 +61,10 @@ export default class AnimatedParticle extends React.Component<
       translateX,
       translateY,
       opacityValue,
-      style,
-      clicked,
-      pan,
+      style
     } = this.state;
 
-    const animatedStyle = pan ? {
-      opacity: 1,
-      transform: [
-        {
-          translateX: pan.x
-        },
-        {
-          translateY: pan.y
-        }
-      ]
-    } : {
+    const animatedStyle = {
       opacity: opacityValue,
       transform: [
         {
@@ -195,15 +77,9 @@ export default class AnimatedParticle extends React.Component<
     };
 
     return (
-      clicked ? (
-        <Animated.View style={[styles.particle, animatedStyle, style]}>
-          {children}
-        </Animated.View>
-      ) : (
-        <Animated.View style={[styles.particle, animatedStyle, style]} {...this.panResponder.panHandlers}>
-          {children}
-        </Animated.View>
-      )
+      <Animated.View onTouchEnd={() => this.animation && this.animation.stop()} style={[styles.particle, animatedStyle, style]}>
+        {children}
+      </Animated.View>
     );
   }
 
@@ -214,15 +90,13 @@ export default class AnimatedParticle extends React.Component<
 
   start = () => {
     const { path, onLifeEnds, onAnimate } = this.props;
-    const { animatedValue, opacityValue, clicked } = this.state;
+    const { animatedValue, opacityValue } = this.state;
 
     this.animation =
       this.animation || onAnimate(path, animatedValue, opacityValue);
 
     this.animation.start(() => {
-      if (!this.state.clicked) {
-        onLifeEnds && onLifeEnds();
-      }
+      // onLifeEnds && onLifeEnds();
     });
   };
 
