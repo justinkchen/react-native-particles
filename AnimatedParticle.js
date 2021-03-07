@@ -76,9 +76,11 @@ export default class AnimatedParticle extends React.Component<
       ]
     };
 
+    // Only works for single children right now. Can change to support multiple children if needed: 
+    // https://frontarm.com/james-k-nelson/passing-data-props-children/
     return (
-      <Animated.View onTouchEnd={() => this.animation && this.animation.stop()} style={[styles.particle, animatedStyle, style]}>
-        {children}
+      <Animated.View style={[styles.particle, animatedStyle, style]}>
+        {React.cloneElement(children, { animation: this.animation })}
       </Animated.View>
     );
   }
@@ -130,6 +132,6 @@ const styles = StyleSheet.create({
   particle: {
     position: 'absolute',
     top: 0,
-    left: 0
+    left: 0,
   }
 });
